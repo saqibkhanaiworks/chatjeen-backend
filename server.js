@@ -7,17 +7,24 @@ require('dotenv').config();
 const ALLOWED_ORIGINS = [
   'https://chatjeen.online',
   'https://www.chatjeen.online',
+  // Vercel deployment URLs
+  'https://chatjeen-online.vercel.app',
+  'https://chatjeen-online-git-master-saqibkhanaiworks.vercel.app',
+  // Local dev
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:3002'
 ];
 
+// Also allow any *.vercel.app preview deploy
+const isVercelPreview = (origin) => /^https:\/\/chatjeen[a-z0-9\-]*\.vercel\.app$/.test(origin);
+
 const app = express();
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (server-to-server, Postman, etc.)
+    // Allow requests with no origin (server-to-server, Postman, health checks)
     if (!origin) return callback(null, true);
-    if (ALLOWED_ORIGINS.includes(origin)) {
+    if (ALLOWED_ORIGINS.includes(origin) || isVercelPreview(origin)) {
       return callback(null, true);
     }
     return callback(new Error(`CORS blocked: ${origin}`), false);
